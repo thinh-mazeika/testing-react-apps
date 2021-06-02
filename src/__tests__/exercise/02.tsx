@@ -1,7 +1,6 @@
 // simple test with React Testing Library
 // http://localhost:3000/counter
 
-import * as React from 'react'
 import ReactDOM from 'react-dom'
 // 🐨 import the `render` and `fireEvent` utilities from '@testing-library/react'
 import Counter from '../../components/counter'
@@ -26,8 +25,18 @@ test('counter increments and decrements when the buttons are clicked', () => {
 
   // 🐨 instead of `div` here you'll want to use the `container` you get back
   // from React Testing Library
-  const [decrement, increment] = div.querySelectorAll('button')
+  const [decrement, increment] = Array.from(div.querySelectorAll('button'))
+  if (!decrement || !increment) {
+    throw new Error('decrement and increment not found')
+  }
+  if (!(div.firstChild instanceof HTMLElement)) {
+    throw new Error('first child is not a div')
+  }
+
   const message = div.firstChild.querySelector('div')
+  if (!message) {
+    throw new Error(`couldn't find message div`)
+  }
 
   expect(message.textContent).toBe('Current count: 0')
 

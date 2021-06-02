@@ -1,8 +1,6 @@
 // simple test with ReactDOM
-// 💯 use dispatchEvent
 // http://localhost:3000/counter
 
-import * as React from 'react'
 import ReactDOM from 'react-dom'
 import Counter from '../../components/counter'
 
@@ -15,22 +13,22 @@ test('counter increments and decrements when the buttons are clicked', () => {
   document.body.append(div)
 
   ReactDOM.render(<Counter />, div)
-  const [decrement, increment] = div.querySelectorAll('button')
+  const [decrement, increment] = Array.from(div.querySelectorAll('button'))
+  if (!decrement || !increment) {
+    throw new Error('decrement and increment not found')
+  }
+  if (!(div.firstChild instanceof HTMLElement)) {
+    throw new Error('first child is not a div')
+  }
+
   const message = div.firstChild.querySelector('div')
+  if (!message) {
+    throw new Error(`couldn't find message div`)
+  }
 
   expect(message.textContent).toBe('Current count: 0')
-  const incrementClickEvent = new MouseEvent('click', {
-    bubbles: true,
-    cancelable: true,
-    button: 0,
-  })
-  increment.dispatchEvent(incrementClickEvent)
+  increment.click()
   expect(message.textContent).toBe('Current count: 1')
-  const decrementClickEvent = new MouseEvent('click', {
-    bubbles: true,
-    cancelable: true,
-    button: 0,
-  })
-  decrement.dispatchEvent(decrementClickEvent)
+  decrement.click()
   expect(message.textContent).toBe('Current count: 0')
 })

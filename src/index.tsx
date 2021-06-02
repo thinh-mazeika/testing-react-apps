@@ -6,14 +6,21 @@ import ReactDOM from 'react-dom'
 import {ErrorBoundary} from 'react-error-boundary'
 import importAll from 'import-all.macro'
 
-const allDynamicImports = importAll.deferred('./examples/*.js')
-const lazyComponents = {}
+const allDynamicImports = importAll.deferred('./examples/*.tsx')
+const lazyComponents: Record<
+  string,
+  React.LazyExoticComponent<React.ComponentType<any>>
+> = {}
 
 for (const modulePath in allDynamicImports) {
   if (allDynamicImports.hasOwnProperty(modulePath)) {
+    const promise = allDynamicImports[modulePath]
+    if (!promise) continue
+
     lazyComponents[
-      modulePath.replace('./examples', '').replace(/.js$/, '')
-    ] = React.lazy(allDynamicImports[modulePath])
+      modulePath.replace('./examples', '').replace(/.tsx$/, '')
+      // @ts-expect-error meh..
+    ] = React.lazy(promise)
   }
 }
 
@@ -42,6 +49,7 @@ function App() {
       return DefaultComponent
     }
   })[0]
+  if (!Component) throw new Error('No component found')
   return (
     <div
       style={{

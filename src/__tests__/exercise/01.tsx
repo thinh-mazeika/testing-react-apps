@@ -1,7 +1,6 @@
 // simple test with ReactDOM
 // http://localhost:3000/counter
 
-import * as React from 'react'
 import ReactDOM from 'react-dom'
 import Counter from '../../components/counter'
 
@@ -15,6 +14,9 @@ test('counter increments and decrements when the buttons are clicked', () => {
   //   💰 div.querySelectorAll('button')
   // 🐨 get a reference to the message div:
   //   💰 div.firstChild.querySelector('div')
+  //
+  // 🦺 TypeScript doesn't trust the DOM very much, so you'll need to verify
+  // things are what they should be to make TypeScript happy here.
   //
   // 🐨 expect the message.textContent toBe 'Current count: 0'
   // 🐨 click the increment button (💰 increment.click())

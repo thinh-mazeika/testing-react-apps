@@ -9,44 +9,32 @@
 import * as React from 'react'
 import Login from './login'
 import Spinner from './spinner'
+import {useAsync} from '../utils'
+import type {LoginFormValues} from './login'
 
-function formSubmissionReducer(state, action) {
-  switch (action.type) {
-    case 'START': {
-      return {status: 'pending', responseData: null, errorMessage: null}
-    }
-    case 'RESOLVE': {
-      return {
-        status: 'resolved',
-        responseData: action.responseData,
-        errorMessage: null,
-      }
-    }
-    case 'REJECT': {
-      return {
-        status: 'rejected',
-        responseData: null,
-        errorMessage: action.error.message,
-      }
-    }
-    default:
-      throw new Error(`Unsupported type: ${action.type}`)
+function getErrorMessage(error: unknown) {
+  if (typeof error === 'string') return error
+  if (error && typeof error === 'object' && 'message' in error) {
+    // @ts-expect-error TODO: fix this
+    return error.message
   }
+  return 'Unknown Error'
 }
 
-function useFormSubmission({endpoint, data}) {
-  const [state, dispatch] = React.useReducer(formSubmissionReducer, {
-    status: 'idle',
-    responseData: null,
-    errorMessage: null,
-  })
+function useFormSubmission<SubmissionResponse, FormData>({
+  endpoint,
+  formData,
+}: {
+  endpoint: string
+  formData: FormData | null
+}) {
+  const {status, data, run, error} = useAsync<SubmissionResponse>()
 
-  const fetchBody = data ? JSON.stringify(data) : null
+  const fetchBody = formData ? JSON.stringify(formData) : null
 
   React.useEffect(() => {
     if (fetchBody) {
-      dispatch({type: 'START'})
-      window
+      const promise = window
         .fetch(endpoint, {
           method: 'POST',
           body: fetchBody,
@@ -56,30 +44,35 @@ function useFormSubmission({endpoint, data}) {
         })
         .then(async response => {
           const data = await response.json()
+          console.log(data)
           if (response.ok) {
-            dispatch({type: 'RESOLVE', responseData: data})
+            return data as SubmissionResponse
           } else {
-            dispatch({type: 'REJECT', error: data})
+            throw data
           }
         })
+      run(promise)
     }
-  }, [fetchBody, endpoint])
+  }, [fetchBody, endpoint, run])
 
-  return state
+  return {status, responseData: data, errorMessage: getErrorMessage(error)}
 }
 
 function LoginSubmission() {
-  const [formData, setFormData] = React.useState(null)
-  const {status, responseData, errorMessage} = useFormSubmission({
+  const [formData, setFormData] = React.useState<LoginFormValues | null>(null)
+  const {status, responseData, errorMessage} = useFormSubmission<
+    {username: string},
+    LoginFormValues
+  >({
     endpoint: 'https://auth-provider.example.com/api/login',
-    data: formData,
+    formData,
   })
 
   return (
     <>
       {status === 'resolved' ? (
         <div>
-          Welcome <strong>{responseData.username}</strong>
+          Welcome <strong>{responseData?.username}</strong>
         </div>
       ) : (
         <Login onSubmit={data => setFormData(data)} />

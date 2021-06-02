@@ -8,7 +8,7 @@ import Login from '../../components/login'
 
 test('submitting the form calls onSubmit with username and password', () => {
   let submittedData
-  const handleSubmit = data => (submittedData = data)
+  const handleSubmit = (data: unknown) => (submittedData = data)
   render(<Login onSubmit={handleSubmit} />)
   const username = 'chucknorris'
   const password = 'i need no password'

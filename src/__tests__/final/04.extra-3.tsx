@@ -1,17 +1,18 @@
 // form testing
-// 💯 generate test data
+// 💯 allow for overrides
 // http://localhost:3000/login
 
-import * as React from 'react'
 import {render, screen} from '@testing-library/react'
 import userEvent from '@testing-library/user-event'
 import faker from 'faker'
 import Login from '../../components/login'
+import type {LoginFormValues} from '../../components/login'
 
-function buildLoginForm() {
+function buildLoginForm(overrides?: Partial<LoginFormValues>) {
   return {
     username: faker.internet.userName(),
     password: faker.internet.password(),
+    ...overrides,
   }
 }
 
