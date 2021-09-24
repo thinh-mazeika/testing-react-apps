@@ -63,6 +63,30 @@ test('submitting the form calls onSubmit with username and password with faker',
   expect(handleSubmit).toHaveBeenCalledTimes(1)
 })
 
+test('submitting the form calls onSubmit with username and password with faker and overrides', () => {
+  const buildLoginForm = ({username, password}) => {
+    username = faker.name.findName()
+    return {
+      username,
+      password,
+    }
+  }
+  const {username, password} = buildLoginForm({password: 'abc'})
+  const handleSubmit = jest.fn()
+  render(<Login onSubmit={handleSubmit} />)
+
+  userEvent.type(screen.getByLabelText(/username/i), username)
+  userEvent.type(screen.getByLabelText(/password/i), password)
+  const submitBtn = screen.getByRole('button', {name: /submit/i})
+  userEvent.click(submitBtn)
+
+  expect(handleSubmit).toHaveBeenCalledWith({
+    username: username,
+    password: password,
+  })
+  expect(handleSubmit).toHaveBeenCalledTimes(1)
+})
+
 /*
 eslint
   no-unused-vars: "off",
