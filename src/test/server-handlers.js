@@ -25,4 +25,4 @@ const handlers = [
   ),
 ]
 
-export {handlers}
+export {handlers, rest}
