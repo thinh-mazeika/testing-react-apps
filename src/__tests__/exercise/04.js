@@ -1,13 +1,14 @@
 // form testing
 // http://localhost:3000/login
 
+import {build} from '@jackfranklin/test-data-bot'
 import {render, screen} from '@testing-library/react'
 import userEvent from '@testing-library/user-event'
 import faker from 'faker'
 import * as React from 'react'
 import Login from '../../components/login'
 
-test('submitting the form calls onSubmit with username and password', () => {
+test('1.submitting the form calls onSubmit with username and password', () => {
   let submittedData
   const handleSubmit = data => {
     return (submittedData = data)
@@ -23,7 +24,7 @@ test('submitting the form calls onSubmit with username and password', () => {
   expect(submittedData).toEqual({username: 'thinh', password: '123'})
 })
 
-test('submitting the form calls onSubmit with username and password with jest mock fn', () => {
+test('2.submitting the form calls onSubmit with username and password with jest mock fn', () => {
   const handleSubmit = jest.fn()
   render(<Login onSubmit={handleSubmit} />)
   const username = screen.getByLabelText(/username/i)
@@ -40,7 +41,7 @@ test('submitting the form calls onSubmit with username and password with jest mo
   expect(handleSubmit).toHaveBeenCalledTimes(1)
 })
 
-test('submitting the form calls onSubmit with username and password with faker', () => {
+test('3. submitting the form calls onSubmit with username and password with faker', () => {
   const buildLoginForm = () => {
     return {
       username: faker.name.findName(),
@@ -63,7 +64,7 @@ test('submitting the form calls onSubmit with username and password with faker',
   expect(handleSubmit).toHaveBeenCalledTimes(1)
 })
 
-test('submitting the form calls onSubmit with username and password with faker and overrides', () => {
+test('4.submitting the form calls onSubmit with username and password with faker and overrides', () => {
   const buildLoginForm = ({username, password}) => {
     username = faker.name.findName()
     return {
@@ -72,6 +73,29 @@ test('submitting the form calls onSubmit with username and password with faker a
     }
   }
   const {username, password} = buildLoginForm({password: 'abc'})
+  const handleSubmit = jest.fn()
+  render(<Login onSubmit={handleSubmit} />)
+
+  userEvent.type(screen.getByLabelText(/username/i), username)
+  userEvent.type(screen.getByLabelText(/password/i), password)
+  const submitBtn = screen.getByRole('button', {name: /submit/i})
+  userEvent.click(submitBtn)
+
+  expect(handleSubmit).toHaveBeenCalledWith({
+    username: username,
+    password: password,
+  })
+  expect(handleSubmit).toHaveBeenCalledTimes(1)
+})
+
+test('5. submitting the form calls onSubmit with username and password with jackfranklin test data bot', () => {
+  const buildLoginForm = build({
+    fields: {
+      username: faker.name.findName(),
+      password: faker.internet.password(),
+    },
+  })
+  const {username, password} = buildLoginForm()
   const handleSubmit = jest.fn()
   render(<Login onSubmit={handleSubmit} />)
 
